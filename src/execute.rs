@@ -181,8 +181,9 @@ pub fn run(
                     if let Some(job) = create_memory_limited_job(memory_limit_value) {
                         assign_to_job(job, &child);
                         dprintln!(
-                            "[INFO] > `{}` | Assigned to memory-limited Job Object ({} MB)",
+                            "[INFO] > `{}` ({}) | Assigned to memory-limited Job Object ({} MB)",
                             display_name,
+                            child.id(),
                             memory_limit_value / 1024 / 1024
                         );
                     }
@@ -220,6 +221,12 @@ pub fn run(
             thread::sleep(Duration::from_secs(timeout_secs));
             let _ = tx.send(());
         });
+        dprintln!(
+            "[INFO] > `{}` ({}) | Assigned timeout ({} sec)",
+            display_name,
+            pid,
+            timeout_secs
+        );
 
         loop {
             match child.try_wait() {
@@ -239,7 +246,7 @@ pub fn run(
                     thread::sleep(Duration::from_millis(100));
                 }
                 Err(e) => {
-                    dprintln!("[ERROR] Failed to check process status: {}", e);
+                    dprintln!("[ERROR] Failed to check process pid {} status: {}", pid, e);
                     break true;
                 }
             }
